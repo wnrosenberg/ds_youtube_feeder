@@ -112,16 +112,16 @@ function ds_youtube_feeder( $max_results = 0 ) {
 		$title = $entries[$i]['title']['$t'];
 		$url_title = preg_replace( '/\s+/' , '-' , preg_replace( '/[^a-z0-9 ]/' , '' , strtolower($title) ) );
 		$description = $entries[$i]['media$group']['media$description']['$t'];
-		$summary = substr($description, 0, 100) + "...";
+		$summary = substr($description, 0, 100) . "...";
 		$videoid = $entries[$i]['media$group']['yt$videoid']['$t'];
-		$videosrc = $entries[$i]['content']['src'] . "&wmode=opaque";
+		$videosrc = "http://www.youtube.com/embed/" . $videoid . "?wmode=transparent";
 
 		if ($max_results) {
 			// use output for featured_videos section
 			?> 
 <li class="<?php echo $videoid; ?>">
-	<figure class="post_img">
-		<a class="thumb" href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/">
+	<figure class="preview">
+		<a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/">
 			<img src="<?php echo $thumbnail; ?>" width="110" height="60"><i></i>
 		</a>
 	</figure>
@@ -133,8 +133,13 @@ function ds_youtube_feeder( $max_results = 0 ) {
 			<?
 		} else {
 			// use output for video-center sidebar
+			if ($i >= 0 && $i <= 3) {
+				$pagination_style = 'style="display: list-item; "';
+			} else {
+				$pagination_style = 'style="display: none; "';
+			}
 			?> 
-<li class="<?php echo $videoid; ?>">
+<li class="<?php echo $videoid; ?>" <?php echo $pagination_style; ?>>
 	<figure class="preview">
 		<a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/"><img src="<?php echo $thumbnail; ?>" width="110" height="60"><i></i></a>
 	</figure>
