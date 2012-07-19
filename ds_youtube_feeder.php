@@ -77,7 +77,7 @@ function dsytf_register_mysettings() { // whitelist options
 
 
 /* Output */
-function ds_wordpress_feeder( $max_results = 0 ) {
+function ds_wordpress_feeder( $max_results = 0, $output = false ) {
 
 	// sanitize $max_results
 	$max_results = intval($max_results);
@@ -91,26 +91,59 @@ function ds_wordpress_feeder( $max_results = 0 ) {
 	$feed_url = "http://gdata.youtube.com/feeds/api/users/" . get_option('ds-yt-user') . "/uploads?v=2&alt=json&format=5" . $max_results ;
 	$feed = file_get_contents($feed_url);
 	if ($feed) {
-		print_r(json_decode($feed, 1));
+		$data = json_decode($feed, 1);
 	} else {
-		echo "<b>Error parsing JSON feed data.</b>";
+		echo "<li>Error parsing JSON feed data.</li>";
 		return false;
 	}
 
-	/* parse that feed! 
-	$entries = $feed['feed']['entry'];
-	for (i=0;i<entries.length;i++) {
-		//console.log(entries[i]);
-		thumbnail = entries[i].media$group.media$thumbnail[1].url;
-		title = entries[i].title.$t;
-		url_title = slugify(title);
-		description = entries[i].media$group.media$description.$t;
-		summary = description.substring(0,100) + "...";
-		videoid = entries[i].media$group.yt$videoid.$t;
-		jQuery("#featured_videos ul").append('<li><figure class="post_img"><a class="thumb" href="/about/video-center/#' + videoid + '/' + url_title + '/"><img src="' + thumbnail + '" width="110" height="60"><i></i></a></figure><h4 class="title"><a href="/about/video-center/#' + videoid + '/' + url_title + '/">' + title + '</a></h4><p class="description">' + summary + ' <a href="/about/video-center/#' + videoid + '/' + url_title + '/">Read more</a></p></li>');
-		//console.log("title: " + title + "\nthumbnail: " + thumbnail + "\ndescription: " + description);
+	/* parse that feed! */
+	$entries = $data['feed']['entry'];
+	for ($i=0;$i<sizeof($entries);$i++) {
+
+		$thumbnail = $entries[$i]['media$group']['media$thumbnail'][1]['url'];
+		$title = $entries[$i]['title']['$t'];
+		$url_title = slugify($title);
+		$description = $entries[$i]['media$group']['media$description']['$t'];
+		$summary = substr($description, 0, 100) + "...";
+		$videoid = $entries[$i]['media$group']['yt$videoid']['$t'];
+		$videosrc = $entries[$i]['content']['src'] . "&wmode=opaque";
+
+		if ($output == 'featured_videos') {
+			// use output for featured_videos section
+			?> 
+<li>
+	<figure class="post_img">
+		<a class="thumb" href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/">
+			<img src="<?php echo $thumbnail; ?>" width="110" height="60"><i></i>
+		</a>
+	</figure>
+	<h4 class="title">
+		<a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/"><?php echo $title; ?></a>
+	</h4>
+	<p class="description"><?php echo $summary; ?> <a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/">Read more</a></p>
+</li>
+			<?
+		} else {
+			// use output for video-center sidebar
+			?>
+<li class="<?php echo $videoid; ?>">
+	<figure class="preview">
+		<a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/"><img src="<?php echo $thumbnail; ?>" width="110" height="60"><i></i></a>
+	</figure>
+	<h4 class="title">
+		<a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/"><?php echo $title; ?></a>
+	</h4>
+	<p class="description"><?php echo $summary; ?><span class="hidden" data-src="<?php echo $videosrc; ?>"><?php echo $description; ?></span> <a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/">Read more</a></p>
+</li>
+			<?
+		}
 	}
-	*/
+
+	/* used to create title slug for urls */
+	function slugify($title) {
+	    return preg_replace( '/\s+/g' , '-' , preg_replace( '/[^a-z0-9 ]/g' , '' , strtolower($title) ) );
+	}
 
 
 
