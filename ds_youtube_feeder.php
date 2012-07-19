@@ -2,11 +2,18 @@
 /*
 Plugin Name: DS Youtube Feeder
 Plugin URI: https://github.com/wnrosenberg/ds_youtube_feeder
-Description: Outputs a Youtuve Feed.
-Version: 0.1b
+Description: Outputs a Youtube Feed.
+Version: 1.0
 Author: Will Rosenberg (Digital Surgeons) <will.rosenberg@gmail.com>
 License: DBAD (http://philsturgeon.co.uk/code/dbad-license/)
 */
+
+/*** TODOS ***
+
+	+ Create an option/setting for the output code to be used. Use [title], [videoid], etc where you would like these variables to appear in your code.
+
+***/
+
 
 /* ACTIONS */
 if ( is_admin() ){
@@ -77,7 +84,7 @@ function dsytf_register_mysettings() { // whitelist options
 
 
 /* Output */
-function ds_wordpress_feeder( $max_results = 0, $output = false ) {
+function ds_youtube_feeder( $max_results = 0 ) {
 
 	// sanitize $max_results
 	$max_results = intval($max_results);
@@ -103,16 +110,16 @@ function ds_wordpress_feeder( $max_results = 0, $output = false ) {
 
 		$thumbnail = $entries[$i]['media$group']['media$thumbnail'][1]['url'];
 		$title = $entries[$i]['title']['$t'];
-		$url_title = slugify($title);
+		$url_title = preg_replace( '/\s+/' , '-' , preg_replace( '/[^a-z0-9 ]/' , '' , strtolower($title) ) );
 		$description = $entries[$i]['media$group']['media$description']['$t'];
 		$summary = substr($description, 0, 100) + "...";
 		$videoid = $entries[$i]['media$group']['yt$videoid']['$t'];
 		$videosrc = $entries[$i]['content']['src'] . "&wmode=opaque";
 
-		if ($output == 'featured_videos') {
+		if ($max_results) {
 			// use output for featured_videos section
 			?> 
-<li>
+<li class="<?php echo $videoid; ?>">
 	<figure class="post_img">
 		<a class="thumb" href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/">
 			<img src="<?php echo $thumbnail; ?>" width="110" height="60"><i></i>
@@ -126,7 +133,7 @@ function ds_wordpress_feeder( $max_results = 0, $output = false ) {
 			<?
 		} else {
 			// use output for video-center sidebar
-			?>
+			?> 
 <li class="<?php echo $videoid; ?>">
 	<figure class="preview">
 		<a href="/about/video-center/#<?php echo $videoid; ?>/<?php echo $url_title; ?>/"><img src="<?php echo $thumbnail; ?>" width="110" height="60"><i></i></a>
@@ -139,14 +146,7 @@ function ds_wordpress_feeder( $max_results = 0, $output = false ) {
 			<?
 		}
 	}
-
-	/* used to create title slug for urls */
-	function slugify($title) {
-	    return preg_replace( '/\s+/g' , '-' , preg_replace( '/[^a-z0-9 ]/g' , '' , strtolower($title) ) );
-	}
-
-
-
 }
 
-?>
+
+/* */ // END OF FILE ds_youtube_feeder.php
