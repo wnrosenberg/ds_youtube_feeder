@@ -62,7 +62,7 @@ function dsytf_register_mysettings() { // whitelist options
 
 
 /* Output */
-function wordpress_feeder($max_results = 0) {
+function wordpress_feeder( $max_results = 0 ) {
 
 	// sanitize $max_results
 	$max_results = intval($max_results);
@@ -74,6 +74,30 @@ function wordpress_feeder($max_results = 0) {
 
 	// grab youtube feed
 	$feed_url = "http://gdata.youtube.com/feeds/api/users/" . get_option('ds-yt-user') . "/uploads?v=2&alt=json&format=5" . $max_results ;
+	$feed = file_get_contents($feed_url);
+	if ($feed) {
+		print_r(json_decode($feed, 1));
+	} else {
+		echo "<b>Error parsing JSON feed data.</b>";
+		return false;
+	}
+
+	/* parse that feed! 
+	$entries = $feed['feed']['entry'];
+	for (i=0;i<entries.length;i++) {
+		//console.log(entries[i]);
+		thumbnail = entries[i].media$group.media$thumbnail[1].url;
+		title = entries[i].title.$t;
+		url_title = slugify(title);
+		description = entries[i].media$group.media$description.$t;
+		summary = description.substring(0,100) + "...";
+		videoid = entries[i].media$group.yt$videoid.$t;
+		jQuery("#featured_videos ul").append('<li><figure class="post_img"><a class="thumb" href="/about/video-center/#' + videoid + '/' + url_title + '/"><img src="' + thumbnail + '" width="110" height="60"><i></i></a></figure><h4 class="title"><a href="/about/video-center/#' + videoid + '/' + url_title + '/">' + title + '</a></h4><p class="description">' + summary + ' <a href="/about/video-center/#' + videoid + '/' + url_title + '/">Read more</a></p></li>');
+		//console.log("title: " + title + "\nthumbnail: " + thumbnail + "\ndescription: " + description);
+	}
+	*/
+
+
 
 }
 
